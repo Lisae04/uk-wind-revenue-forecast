@@ -1,0 +1,70 @@
+# ------------------------------------------------------------------
+# UK wind portfolio: day-ahead generation -> price -> revenue
+# All times are stored in UTC. Market-day logic uses Europe/London.
+# ------------------------------------------------------------------
+
+period:
+  start: "2024-01-01"        # Open-Meteo archived forecasts start Jan 2024
+  end: "2026-09-30"
+  test_start: "2025-10-01"   # everything from here on is out-of-sample (12 months)
+
+market:
+  tz: "Europe/London"
+  gate_closure_local: "09:00"   # information cut-off on D-1 for delivery day D
+  price_provider: "APXMIDP"     # Elexon Market Index provider (N2EXMIDP reports zeros)
+
+portfolio:
+  farms_file: "data/reference/ga_portfolio_farms.csv"   # exported from GA_07 V3
+  option: 1                                             # GA option to model
+  gwa_file: "data/raw/england_wind.csv"                 # capstone C1 export (cell_id, wind_speed_ms)
+
+turbine:
+  rated_mw: 6.0                 # per turbine (GA config)
+  turbines_per_cell: 1
+  hub_height_m: 100             # GA used GWA at 100 m; set e.g. 120 to test shear
+  gwa_height_m: 100
+  losses: 0.23                  # total losses (wake, availability, electrical), GA config
+  iec_class_vave_ms: {III: 7.5, II: 8.5, I: 10.0}
+  air_density_correction: true
+  power_curve_dir: "data/reference/power_curves"
+
+reference_farms:
+  # Metered farms used to learn the ML correction of the physical model.
+  # mode: "bmu"      -> use the BM units below (Elexon B1610 metered output)
+  #       "national" -> use GB transmission-metered wind outturn (FUELHH WIND)
+  #       "auto"     -> "bmu" if the list is non-empty, else "national"
+  mode: "auto"
+  bmus: []
+  # Example entry (run scripts/find_wind_bmus.py to list candidates):
+  # - {bmu: "T_EXAMPLE-1", lat: 55.0, lon: -2.5, capacity_mw: 60.0}
+
+generation_model:
+  retrain_every_days: 30
+  lgbm:
+    n_estimators: 400
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 50
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    verbose: -1
+
+price_model:
+  lear_window_days: 365
+  lear_recalibrate_every_days: 7
+  lgbm_retrain_every_days: 30
+  lgbm:
+    n_estimators: 600
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 40
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    verbose: -1
+
+paths:
+  cache: "data/cache"
+  processed: "data/processed"
+  results: "results"

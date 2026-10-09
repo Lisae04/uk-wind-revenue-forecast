@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.env
+
+# data: raw inputs and API caches stay local
+data/raw/*
+!data/raw/README.md
+data/cache/
+data/processed/
+
+# synthetic runs should not be committed as results
+results/synthetic_demo/
