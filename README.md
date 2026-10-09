@@ -1,5 +1,7 @@
 # UK Wind Portfolio: Day-Ahead Generation, Price and Revenue Forecasting
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Lisae04/uk-wind-revenue-forecast/blob/main/notebooks/uk_wind_revenue_colab.ipynb) [![tests](https://github.com/Lisae04/uk-wind-revenue-forecast/actions/workflows/tests.yml/badge.svg)](https://github.com/Lisae04/uk-wind-revenue-forecast/actions/workflows/tests.yml)
+
 > **Headline:** _fill in after the first real run, e.g. "LightGBM cuts day-ahead GB price MAE by X% vs a seasonal naive benchmark (DM p < 0.01); the 156 MW portfolio captured Y% of baseload price, losing £Z/MWh to wind cannibalisation."_
 
 How much is a planned onshore wind portfolio worth in the GB power market, and how well can that value be forecast a day ahead?
@@ -151,12 +153,23 @@ make all           # real data; first run downloads and caches (~30-60 min)
 make bmus          # optional: list Elexon wind BM units for reference_farms.bmus
 ```
 
+### In Google Colab
+
+Open `notebooks/uk_wind_revenue_colab.ipynb` with the badge at the top, then choose Runtime → Run all. The notebook:
+
+- mounts Drive and finds `england_wind.csv` there (default `MyDrive/BREE495_C1_Yield_England/outputs/`);
+- caches downloads in `MyDrive/uk_wind_cache`, so later runs are fast;
+- writes tables and figures to `MyDrive/uk_wind_results/`.
+
+While the repo is private, add a Colab secret named `GITHUB_TOKEN` (a read-only fine-grained token for this repo), or put `uk-wind-revenue-forecast.zip` in My Drive.
+
 Everything is set in `config.yaml`: period, gate closure, GA option, turbine, reference farms and model hyperparameters.
 
 ```
 ├── config.yaml
 ├── data/reference/            GA portfolio export, NREL power curves (+ licence)
 ├── data/raw/                  england_wind.csv (git-ignored)
+├── notebooks/uk_wind_revenue_colab.ipynb   Colab walkthrough (Drive-aware)
 ├── scripts/run_pipeline.py    entry point (--synthetic for offline)
 ├── scripts/find_wind_bmus.py  reference-farm discovery
 ├── src/ukwind/
